@@ -10,6 +10,7 @@ import {
 
 const project = new TypeScriptProject({
   defaultReleaseBranch: 'main',
+  sampleCode: false,
   name: '@hallcor/pulumi-component-utils',
   projenrcTs: true,
   depsUpgradeOptions: {
