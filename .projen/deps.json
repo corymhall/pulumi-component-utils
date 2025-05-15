@@ -13,6 +13,10 @@
       "type": "build"
     },
     {
+      "name": "@types/deep-equal",
+      "type": "build"
+    },
+    {
       "name": "@types/jest",
       "type": "build"
     },
@@ -92,6 +96,10 @@
     },
     {
       "name": "@pulumi/pulumi",
+      "type": "runtime"
+    },
+    {
+      "name": "deep-equal",
       "type": "runtime"
     }
   ],

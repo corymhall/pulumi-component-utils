@@ -1,12 +1,36 @@
-import { TypeScriptComponent } from '@hallcor/pulumi-projen-project-types';
-const project = new TypeScriptComponent({
-  defaultReleaseBranch: 'main',
-  devDeps: ['@hallcor/pulumi-projen-project-types'],
-  name: 'pulumi-component-utils',
-  projenrcTs: true,
+import {
+  GithubCredentials,
+  PulumiEscSetup,
+  TypeScriptProject,
+} from '@hallcor/pulumi-projen-project-types';
+import {
+  NodePackageManager,
+  UpgradeDependenciesSchedule,
+} from 'projen/lib/javascript';
 
-  // deps: [],                /* Runtime dependencies of this module. */
-  // description: undefined,  /* The description is just a string that helps people understand the purpose of the package. */
-  // packageName: undefined,  /* The "name" in package.json. */
+const project = new TypeScriptProject({
+  defaultReleaseBranch: 'main',
+  name: '@hallcor/pulumi-component-utils',
+  projenrcTs: true,
+  depsUpgradeOptions: {
+    workflowOptions: {
+      branches: ['main'],
+      labels: ['auto-approve'],
+      schedule: UpgradeDependenciesSchedule.WEEKLY,
+    },
+  },
+  autoApproveOptions: {
+    label: 'auto-approve',
+    allowedUsernames: ['corymhall', 'hallcor-projen-app[bot]'],
+  },
+  projenCredentials: GithubCredentials.fromApp({
+    pulumiEscSetup: PulumiEscSetup.fromOidcAuth({
+      environment: 'github/public',
+      organization: 'corymhall',
+    }),
+  }),
+  packageManager: NodePackageManager.NPM,
+  devDeps: ['@hallcor/pulumi-projen-project-types', '@types/deep-equal'],
+  deps: ['@pulumi/pulumi', 'deep-equal'],
 });
 project.synth();

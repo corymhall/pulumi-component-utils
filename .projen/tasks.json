@@ -92,20 +92,6 @@
         }
       ]
     },
-    "dist": {
-      "name": "dist",
-      "steps": [
-        {
-          "exec": "mkdir -p dist"
-        },
-        {
-          "exec": "cp package.json dist/"
-        },
-        {
-          "exec": "touch dist/releasetag.txt"
-        }
-      ]
-    },
     "eject": {
       "name": "eject",
       "description": "Remove projen from the project",
@@ -131,21 +117,12 @@
         }
       ]
     },
-    "get-schema": {
-      "name": "get-schema",
-      "description": "Validate schema is valid",
-      "steps": [
-        {
-          "exec": "pulumi package get-schema ./ > /dev/null"
-        }
-      ]
-    },
     "install": {
       "name": "install",
       "description": "Install project dependencies and update lockfile (non-frozen)",
       "steps": [
         {
-          "exec": "yarn install --check-files"
+          "exec": "npm install"
         }
       ]
     },
@@ -154,7 +131,7 @@
       "description": "Install project dependencies using frozen lockfile",
       "steps": [
         {
-          "exec": "yarn install --check-files --frozen-lockfile"
+          "exec": "npm ci"
         }
       ]
     },
@@ -163,18 +140,16 @@
       "description": "Creates the distribution package",
       "steps": [
         {
-          "spawn": "dist"
+          "exec": "mkdir -p dist/js"
+        },
+        {
+          "exec": "npm pack --pack-destination dist/js"
         }
       ]
     },
     "post-compile": {
       "name": "post-compile",
-      "description": "Runs after successful compilation",
-      "steps": [
-        {
-          "spawn": "get-schema"
-        }
-      ]
+      "description": "Runs after successful compilation"
     },
     "post-upgrade": {
       "name": "post-upgrade",
@@ -183,28 +158,6 @@
     "pre-compile": {
       "name": "pre-compile",
       "description": "Prepare the project for compilation"
-    },
-    "publish:git": {
-      "name": "publish:git",
-      "description": "Prepends the release changelog onto the project changelog, creates a release commit, and tags the release",
-      "env": {
-        "CHANGELOG": "dist/changelog.md",
-        "RELEASE_TAG_FILE": "dist/releasetag.txt",
-        "PROJECT_CHANGELOG_FILE": "",
-        "VERSION_FILE": "dist/version.txt"
-      },
-      "steps": [
-        {
-          "exec": "VERSION=$(cat dist/version.txt); cp dist/package.json . && git add package.json && git commit -m \"chore(release): v$VERSION\""
-        },
-        {
-          "builtin": "release/tag-version"
-        },
-        {
-          "exec": "git push --follow-tags origin main"
-        }
-      ],
-      "condition": "git log --oneline -1 | grep -qv \"chore(release):\""
     },
     "release": {
       "name": "release",
@@ -220,7 +173,7 @@
           "spawn": "bump"
         },
         {
-          "spawn": "package"
+          "spawn": "build"
         },
         {
           "spawn": "unbump"
@@ -265,7 +218,7 @@
       },
       "steps": [
         {
-          "exec": "git checkout package.json"
+          "builtin": "release/reset-version"
         }
       ]
     },
@@ -277,13 +230,13 @@
       },
       "steps": [
         {
-          "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --no-deprecated --dep=dev,peer,prod,optional --filter=@hallcor/pulumi-projen-project-types,@swc/core,@swc/jest,@types/jest,@types/node,eslint-config-prettier,eslint-import-resolver-typescript,eslint-plugin-import,eslint-plugin-prettier,jest,prettier,projen,ts-jest,ts-node,typescript,@pulumi/pulumi"
+          "exec": "npx npm-check-updates@16 --upgrade --target=minor --peer --no-deprecated --dep=dev,peer,prod,optional --filter=@hallcor/pulumi-projen-project-types,@swc/core,@swc/jest,@types/deep-equal,@types/jest,@types/node,eslint-config-prettier,eslint-import-resolver-typescript,eslint-plugin-import,eslint-plugin-prettier,jest,prettier,projen,ts-jest,ts-node,typescript,@pulumi/pulumi,deep-equal"
         },
         {
-          "exec": "yarn install --check-files"
+          "exec": "npm install"
         },
         {
-          "exec": "yarn upgrade @hallcor/pulumi-projen-project-types @swc/core @swc/jest @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser commit-and-tag-version constructs eslint-config-prettier eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-prettier eslint jest jest-junit prettier projen ts-jest ts-node typescript @pulumi/pulumi"
+          "exec": "npm update @hallcor/pulumi-projen-project-types @swc/core @swc/jest @types/deep-equal @types/jest @types/node @typescript-eslint/eslint-plugin @typescript-eslint/parser commit-and-tag-version constructs eslint-config-prettier eslint-import-resolver-typescript eslint-plugin-import eslint-plugin-prettier eslint jest jest-junit prettier projen ts-jest ts-node typescript @pulumi/pulumi deep-equal"
         },
         {
           "exec": "npx projen"
